@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  local-s3-app
+
+  Sample SAM Template for local-s3-app
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 60
+
+Resources:
+  GetS3ObjectsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: GetS3Objects
+      Description: SAM Kata for S3 Access
+      CodeUri: get_s3_objects/
+      Handler: main.lambda_handler
+      Runtime: python3.8
+      Policies:
+        - S3ReadPolicy:
+            BucketName: s3kata*
+      Events:
+        GetS3ObjectsAPI:
+          Type: Api
+          Properties:
+            Path: /GetS3Objects
+            Method: get
+
+Outputs:
+  GetS3ObjectsAPI:
+    Description: "API Gateway endpoint URL for Prod stage for Get S3 Bucket function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/GetS3Objects/"
+  GetS3ObjectsFunction:
+    Description: "Get S3 Bucket Lambda Function ARN"
+    Value: !GetAtt GetS3ObjectsFunction.Arn
