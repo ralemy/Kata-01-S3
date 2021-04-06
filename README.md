@@ -19,6 +19,9 @@ This Kata was developed with
 - Python Plugin 203.7717.81
 - AWS Plugin 1.25-33
 
+The information in this Readme file is edited from the auto-generated Readme which was created using the
+```sam init``` command
+
 [boot3-stubs](https://pypi.org/project/boto3-stubs/) package was installed to allow for
 autocomplete and type matching in the IDE
 
@@ -52,10 +55,75 @@ it needs for testing its scenarios on the fly, then destroys them on exit.
   - The ```tearDownClass()``` class method is used to remove the files and the bucket when all tests are done.
   - The ```setUp()``` method is used to get the endpoint for the lambda to call at each test.
   
+# Project files 
 
-## 1- Making a querystring mandatory
+This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-This task is achieved by configuring the events section in the yaml file:
+- get_s3_objects - Code for the application's Lambda function.
+- events - Invocation events that you can use to invoke the function.
+- tests - Unit and Integration tests for the application code. 
+- template.yaml - A template that defines the application's AWS resources.
+
+The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
+
+# Running the unit tests
+
+Unit tests can run without deploying the application. To run unit tests, first install the requirements for
+each test:
+
+```bash
+local-s3-app$ pip install -r tests/requirements.txt --user
+```
+
+From that point, you can run the tests from the command line. For example, a CI/CD tool, can run the unit tests using
+the following command
+
+```bash
+# unit test
+local-s3-app$ PYTHONPATH=".:/usr/local/lib/python3.9/site-packages:$PYTHONPATH" /usr/local/bin/python3.9 tests/unit/test_handler.py
+```
+
+This will ensure that the current directory is searched for required files and modules, however based on the operating
+system or the directory structure, the above command may require some editing. for example, in some operating systems,
+paths are separated by ```;``` instead of ```:```
+
+Please note that recent versions of python are required to support strict type checking and mocking.
+
+# Debugging the application in the IDE
+
+In the case of IntelliJ Idea, directly form inside the IDE. This allows you to put breakpoints in Lambda and inspect
+local variables and other state information.
+
+
+# Building the application
+
+
+Build your application with the `sam build --use-container` command.
+
+```bash
+local-s3-app$ sam build --use-container
+```
+
+The SAM CLI installs dependencies defined in `get_s3_objects/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+
+# Deploying Locally
+
+Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
+
+Run functions locally and invoke them with the `sam local invoke` command.
+
+```bash
+local-s3-app$ sam local invoke GetS3ObjectsFunction --event events/event.json
+```
+
+The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
+
+```bash
+local-s3-app$ sam local start-api
+local-s3-app$ curl http://localhost:3000/
+```
+
+The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
 
 ```yaml
       Events:
@@ -64,51 +132,11 @@ This task is achieved by configuring the events section in the yaml file:
           Properties:
             Path: /GetS3Objects
             Method: get
-            RestApiId:
-              Ref: S3KataAPI
-            RequestParameters:
-              - method.request.querystring.bucket:
-                  Required: true
 ```
 
-### 1a- Testing that the bucket parameter is mandatory
-
-Testing that bucket parameter in querystring is mandatory should be done in the integration tests.
-at the moment, the dynamics of integration tests has not been fully worked out, therefore the test
-will be performed manually.
 
 
-
-
-
-
-
------
-This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
-
-- hello_world - Code for the application's Lambda function.
-- events - Invocation events that you can use to invoke the function.
-- tests - Unit tests for the application code. 
-- template.yaml - A template that defines the application's AWS resources.
-
-The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
-
-If you prefer to use an integrated development environment (IDE) to build and test your application, you can use the AWS Toolkit.  
-The AWS Toolkit is an open source plug-in for popular IDEs that uses the SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds a simplified step-through debugging experience for Lambda function code. See the following links to get started.
-
-* [CLion](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [GoLand](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [IntelliJ](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [WebStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [Rider](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [PhpStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [PyCharm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [RubyMine](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [DataGrip](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [VS Code](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/welcome.html)
-* [Visual Studio](https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/welcome.html)
-
-## Deploy the sample application
+# Deploying the application to the cloud
 
 The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
 
@@ -125,7 +153,17 @@ sam build --use-container
 sam deploy --guided
 ```
 
-The first command will build the source of your application. The second command will package and deploy your application to AWS, with a series of prompts:
+The first command will build the source of your application. The second command will package and deploy your 
+application to AWS.
+
+If you are using a specific profile, you need to add that to the end of the ```deploy``` command:
+
+```bash
+sam deploy --guided --profile myprofile
+```
+
+Guided deployment presents a series of prompts:
+
 
 * **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
 * **AWS Region**: The AWS region you want to deploy your app to.
@@ -134,42 +172,6 @@ The first command will build the source of your application. The second command 
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
 
 You can find your API Gateway Endpoint URL in the output values displayed after deployment.
-
-## Use the SAM CLI to build and test locally
-
-Build your application with the `sam build --use-container` command.
-
-```bash
-local-s3-app$ sam build --use-container
-```
-
-The SAM CLI installs dependencies defined in `hello_world/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
-
-Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
-
-Run functions locally and invoke them with the `sam local invoke` command.
-
-```bash
-local-s3-app$ sam local invoke HelloWorldFunction --event events/event.json
-```
-
-The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
-
-```bash
-local-s3-app$ sam local start-api
-local-s3-app$ curl http://localhost:3000/
-```
-
-The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
-
-```yaml
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
-```
 
 ## Add a resource to your application
 The application template uses AWS Serverless Application Model (AWS SAM) to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources such as functions, triggers, and APIs. For resources not included in [the SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use standard [AWS CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) resource types.
@@ -180,35 +182,47 @@ To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs`
 
 `NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
 
+So, assuming the stack-name was local-s3-app, you will get the logs like this:
+
 ```bash
-local-s3-app$ sam logs -n HelloWorldFunction --stack-name local-s3-app --tail
+local-s3-app$ sam logs -n GetS3ObjectsFunction --stack-name local-s3-app --tail
 ```
 
 You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
 
-## Tests
+## Integration Tests
 
-Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
+Once your application is deployed, integration tests can run with the following command
 
 ```bash
-local-s3-app$ pip install -r tests/requirements.txt --user
-# unit test
-local-s3-app$ python -m pytest tests/unit -v
 # integration test, requiring deploying the stack first.
-# Create the env variable AWS_SAM_STACK_NAME with the name of the stack we are testing
-local-s3-app$ AWS_SAM_STACK_NAME=<stack-name> python -m pytest tests/integration -v
+local-s3-app$ AWS_SAM_STACK_NAME=<stack-name> AWS_DEFAULT_REGION=<region> AWS_PROFILE=<profile> BUCKET_NAME=<bucketName> python -m pytest tests/integration -v
 ```
+- The `AWS_SAM_STACK_NAME` is the name of the stack you used to deploy your app. you will use this to get logs, add resources, and clean up.
+- The `AWS_DEFAULT_REGION` is the region in which you have deployed the stack. 
+- The `AWS_PROFILE` is optional, in case you would use a non-default profile for deployment
+- The `BUCKET_NAME` is specific to this Kata and is a name of bucket to create for tests. it should start with `s3kata`. it will be destroyed when the tests are done.
+  
+`NOTE` that since the bucket is created on the fly, it will be a private bucket. for the lambda to access that, we need to have a policy
+  this policy is set in the template file, as shown below:
+  
+```yaml
+Policies:
+  - S3ReadPolicy:
+      BucketName: s3kata*
+```
+This means that the bucket name for integration tests should start with `s3kata`
+
 
 ## Cleanup
 
 To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
 
 ```bash
-aws cloudformation delete-stack --stack-name local-s3-app
+aws cloudformation delete-stack --stack-name <stack-name>
 ```
 
 ## Resources
 
 See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
 
-Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
