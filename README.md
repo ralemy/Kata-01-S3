@@ -1,6 +1,6 @@
-# Local-s3-app
+# SAM Kata for S3 Buckets
 
-This project is a Kata for clean coding with AWS Serverless Application Model.
+This project is a Kata for clean coding with AWS SAM (Serverless Application Model).
 
 Kata projects have the following requirements at the time of this writing:
 
