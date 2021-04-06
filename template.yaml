@@ -3,7 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   kata-01-s3
 
-  Sample SAM Template for local-s3-app
+  Sample SAM Template for kata-01-s3
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
